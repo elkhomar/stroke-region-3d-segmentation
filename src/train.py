@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Optional, Tuple
-
+import os
 import hydra
 import lightning as L
 import rootutils
@@ -53,7 +53,9 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     # set seed for random number generators in pytorch, numpy and python.random
     if cfg.get("seed"):
         L.seed_everything(cfg.seed, workers=True)
-
+    
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:64"
+    torch.cuda.empty_cache()
     log.info(f"Instantiating datamodule <{cfg.data._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(cfg.data)
 
